@@ -1,0 +1,17 @@
+
+#generate_key
+
+read MSG
+echo $MSG
+exit 0
+
+#check if user has existing key
+
+#if it does not exist, create it
+#[ ! -f ~/.ssh/id_rsa ] ssh-keygen -q -t rsa -f ~/.ssh/id_rsa -N ""
+
+#prompt for username and password
+
+#read ssh_config file looking for Host entries(assumes this has already been installed)
+
+#distribute keys to each host
