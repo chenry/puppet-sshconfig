@@ -1,4 +1,4 @@
-# SSH Configuration 
+# Boxen SSH Configuration 
 
 ### Installs:
 - ssh-copy-id
@@ -16,12 +16,14 @@
 include sshconfig
 ```
 
+Users can add their configuration files in modules/people/files/<github username>/ssh_config
+
+
 Insert the following in the bootstrap shell script for boxen.
 
 ```
 echo "Enter network password:"
 read -s SSHPASS
-echo OK
 
 echo $SSHPASS > /tmp/mp
 chmod 700 /tmp/mp
