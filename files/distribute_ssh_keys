@@ -1,0 +1,16 @@
+
+export SSHPASS=`cat ${1}`
+# use config file to get serverlist
+serverlist=`cat ~/.ssh/config | grep '^Host ' | sed -e 's/Host //'`
+
+for server in $serverlist
+do
+  echo "Adding your key to $server"
+  /usr/local/bin/ssh-copy-id $server
+
+  if [ 0 -ne $? ]; then
+    echo "FAILED"
+    exit 1
+  fi
+done
+ssh-add

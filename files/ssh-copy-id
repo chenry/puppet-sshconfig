@@ -1,0 +1,45 @@
+DEBUG=1
+
+function usage {
+	echo "usage $0 [-r] [-i key_name] <server>"
+}
+
+function help {
+    echo " "
+    echo "Distributes your ssh id to a list of servers at once to allow key authentication instead of password"
+    echo " "
+    usage
+    echo " "
+    echo "Arguments:"
+    echo " -h               Show this message"
+    echo " -i key_name		Specify a key to transfer.  If nothing is specified, all keys will be copied"
+    echo "<server>     		Name of the server to copy the id to "
+}
+
+# set defaults
+oldifs=$IFS
+IFS=$"\n"
+pubkey=`cat ~/.ssh/*.pub`
+IFS=$oldifs
+
+while getopts :ih arg; do
+ case $arg in 
+    i) pubkey=`cat ${OPTARG}`
+		;;
+    h) help
+       exit
+        ;;
+ esac
+done
+
+shift $((OPTIND -1))
+server=$1
+
+# capture the password if one has not already been captured
+if [ "" == "${SSHPASS}" ]; then
+	echo -n "Password:"
+	read -s SSHPASS 
+	export SSHPASS
+fi
+
+/usr/local/bin/sshpass -e ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $server "mkdir -p ~/.ssh && echo \"${pubkey}\" >> ~/.ssh/authorized_keys"
