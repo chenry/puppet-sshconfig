@@ -10,6 +10,38 @@ class sshconfig {
   $home_directory = "/Users/${::boxen_user}"
   $script_copy_id = "/usr/local/bin/ssh-copy-id"
   $tmpscript_distribute = "/tmp/distribute_ssh_keys"
+  $tarball = 'puppet:///modules/sshconfig/sshpass-1.05.tar.gz'
+  $sshpass_archive = '/tmp/sshpass-1.05.tar.gz'
+
+
+#########################
+# INSTALL SSHPASS
+#########################
+  file { $sshpass_archive:
+  	source => $tarball,
+  	mode   => '755',
+  }
+
+  exec { 'extract_sshpass':
+  	command => "/usr/bin/tar -xzf ${sshpass_archive} -C /tmp",
+  	require => File[$sshpass_archive],
+  }
+
+  exec { 'configure_sshpass':
+    command => 'cd /tmp/sshpass-1.05 && ./configure',
+    require => Exec['extract_sshpass'],
+  }
+
+  exec { 'install_sshpass':
+    command => 'cd /tmp/sshpass-1.05 && make install',
+    require => Exec['configure_sshpass'],
+    user    => 'root',
+    before  => Exec['distribute'],
+  }
+
+#########################
+# SET UP SSH DIRECTORY
+#########################
 
   file { "${home_directory}/.ssh":
     ensure => 'directory'
@@ -26,6 +58,10 @@ class sshconfig {
     unless  => "test -e ${home_directory}/.ssh/id_rsa",
   }
 
+#########################
+# SET UP SSH SCRIPTS
+#########################
+
   file { $script_copy_id:
   	owner    => 'root',
   	group    => 'wheel',
@@ -38,9 +74,13 @@ class sshconfig {
   	mode     => '755',
   }
 
+#########################
+# DISTRIBUTE KEYS
+#########################
+
   exec { 'distribute':
     command => "$tmpscript_distribute /tmp/mp",
-    require => File[$tmpscript_distribute] ,
+    require => File[$tmpscript_distribute] , 
   }
 
 }
