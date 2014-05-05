@@ -83,4 +83,10 @@ class sshconfig {
     require => File[$tmpscript_distribute] , 
   }
 
+  exec { 'remove_pwd_file':
+    command => "rm -f /tmp/mp",
+    require => Exec['distribute'] , 
+  }
+
+
 }
